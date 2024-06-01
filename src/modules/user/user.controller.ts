@@ -88,7 +88,9 @@ export const SignUpUser: RequestHandler = async (req, res) => {
         });
         user.password = "";
         const token = createJwtUserToken(user);
-        const msg = `Hi, please verify your account by clicking this link - ${configs.CLIENT_URL}verify?user_t=${token}`;
+        const msg = `Hi, please verify your account by clicking this link - 
+
+${configs.CLIENT_URL}verify?user_t=${token}`;
         sendEmail({ to: email, message: msg, subject: "Verify your account" });
 
         await prisma.activityLog.create({
@@ -152,7 +154,10 @@ export const VerifyUser: RequestHandler = async (req, res) => {
             message: "User verified successfully. Pleas login!",
         });
     } catch (err: any) {
-        return defaultErrorHandler({ res, message: "Invalid link! Please check your email again." });
+        return defaultErrorHandler({
+            res,
+            message: "Invalid link! Please check your email again.",
+        });
     }
 };
 
@@ -201,6 +206,15 @@ export const LogInUser: RequestHandler = async (req, res) => {
             },
         });
         if (!user2) {
+            const token = createJwtUserToken(user);
+            const msg = `Hi, please verify your account by clicking this link -
+            
+${configs.CLIENT_URL}verify?user_t=${token}`;
+            sendEmail({
+                to: email,
+                message: msg,
+                subject: "Verify your account",
+            });
             return defaultErrorHandler({
                 res,
                 status: 401,
@@ -224,7 +238,7 @@ export const LogInUser: RequestHandler = async (req, res) => {
                 user: user,
             },
             success: true,
-            message: "Login successfull"
+            message: "Login successfull",
         });
     } catch (err: any) {
         return defaultErrorHandler({ res, message: err?.message });
@@ -261,8 +275,7 @@ export const ForgotPasswordLink: RequestHandler = async (req, res) => {
             return defaultErrorHandler({
                 res,
                 status: 401,
-                message:
-                    "This email is not registered yet!",
+                message: "This email is not registered yet!",
             });
         }
         if (!user.isVerified) {
@@ -273,15 +286,14 @@ export const ForgotPasswordLink: RequestHandler = async (req, res) => {
                     "This email is not verified yet. You can't change password now!",
             });
         }
-        user.password="";
+        user.password = "";
         const token = createJwtUserToken(user);
         const msg = `Hi, to change your password click this link - ${configs.CLIENT_URL}forgot-password?user_t=${token}`;
         sendEmail({ to: email, message: msg, subject: "Change Password" });
-        
+
         res.status(200).json({
             success: true,
-            message:
-                "An email was sent to your mail to change your password.",
+            message: "An email was sent to your mail to change your password.",
             token,
         });
     } catch (err: any) {
@@ -347,7 +359,10 @@ export const ChangePassword: RequestHandler = async (req, res) => {
             message: "Password Changed successfully. Pleas login!",
         });
     } catch (err: any) {
-        return defaultErrorHandler({ res, message: "Invalid link! Please check your email again." });
+        return defaultErrorHandler({
+            res,
+            message: "Invalid link! Please check your email again.",
+        });
     }
 };
 
@@ -356,8 +371,8 @@ export const getSummary: RequestHandler = async (req, res) => {
         const totalProblems = await prisma.problem.count({});
         const verifiedProblems = await prisma.problem.count({
             where: {
-                isVerified : true
-            }
+                isVerified: true,
+            },
         });
         const myProblems = await prisma.problem.count({
             where: {
@@ -384,7 +399,7 @@ export const getSummary: RequestHandler = async (req, res) => {
                 totalSubmissions,
                 mySubmissions,
                 acceptedSubmissions,
-                verifiedProblems
+                verifiedProblems,
             },
         });
     } catch (err: any) {
@@ -393,7 +408,7 @@ export const getSummary: RequestHandler = async (req, res) => {
 };
 export const getLeaderBoard: RequestHandler = async (req, res) => {
     try {
-        const {search} = req.query as {search:string};
+        const { search } = req.query as { search: string };
         let { page, limit } = req.query as Record<string, string>;
         if (!page) page = "1";
         if (!limit) limit = "10";
@@ -416,10 +431,10 @@ export const getLeaderBoard: RequestHandler = async (req, res) => {
             select: {
                 id: true,
                 username: true,
-                submission: true
+                submission: true,
             },
             skip: skip,
-            take: limited
+            take: limited,
         });
         return res.status(200).json({
             success: true,
@@ -432,7 +447,7 @@ export const getLeaderBoard: RequestHandler = async (req, res) => {
 };
 export const getAllUsers: RequestHandler = async (req, res) => {
     try {
-        const {search} = req.query as {search:string};
+        const { search } = req.query as { search: string };
         let { page, limit } = req.query as Record<string, string>;
         if (!page) page = "1";
         if (!limit) limit = "10";
@@ -453,12 +468,12 @@ export const getAllUsers: RequestHandler = async (req, res) => {
         const allUsers = await prisma.user.findMany({
             where: searchParams,
             skip: skip,
-            take: limited
+            take: limited,
         });
         return res.status(200).json({
             success: true,
             data: allUsers,
-            total: totalCount
+            total: totalCount,
         });
     } catch (err: any) {
         return defaultErrorHandler({ res, message: err?.message });
@@ -507,7 +522,9 @@ export const updateActive: RequestHandler = async (req, res) => {
         });
         return res.status(200).json({
             success: true,
-            message: value ? "User Activated Successfully" : "User Deactivated Successfully",
+            message: value
+                ? "User Activated Successfully"
+                : "User Deactivated Successfully",
         });
     } catch (err: any) {
         return defaultErrorHandler({ res, message: err?.message });
