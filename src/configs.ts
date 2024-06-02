@@ -8,4 +8,5 @@ export const configs = {
   MAILGUN_URL: process.env.MAILGUN_URL!,
   MAILGUN_USERNAME: process.env.MAILGUN_USERNAME!,
   CLIENT_URL: process.env.CLIENT_URL!,
+  LOCALHOST_URL: process.env.LOCALHOST_URL!
 };
