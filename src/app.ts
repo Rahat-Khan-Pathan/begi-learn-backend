@@ -6,8 +6,7 @@ import apiRoutes from "./routes";
 dotenv.config();
 
 const app = express();
-const allowedOrigins = [configs.CLIENT_URL, configs.LOCALHOST_URL];
-app.use(cors({ origin: allowedOrigins }));
+app.use(cors());
 app.use(express.json());
 
 const port = configs.PORT || 7868;
