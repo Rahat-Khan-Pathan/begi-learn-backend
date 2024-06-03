@@ -124,7 +124,7 @@ export const updateProblem: RequestHandler = async (req, res) => {
             return defaultErrorHandler({
                 res,
                 status: 404,
-                message: "No Problem Found!",
+                message: "No Problem Found or You Can't Update This Problem!",
             });
         }
         const schema = Joi.object({
@@ -270,14 +270,13 @@ export const getAllProblems: RequestHandler = async (req, res) => {
                         username: true,
                     },
                 },
-                submission: true
+                submission: true,
             },
             orderBy: {
                 createdAt: "desc",
             },
             skip: skip,
             take: limited,
-            
         });
         return res.status(200).json({
             success: true,
@@ -339,17 +338,11 @@ export const updateVerification: RequestHandler = async (req, res) => {
 };
 export const getProblemById: RequestHandler = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id, value } = req.params;
         const problem = await prisma.problem.findFirst({
-            where:
-                req.auth?.role === "ADMIN"
-                    ? {
-                          id: parseInt(id),
-                      }
-                    : {
-                          id: parseInt(id),
-                          creatorId: req.auth?.id,
-                      },
+            where: {
+                id: parseInt(id),
+            },
             select: {
                 id: true,
                 title: true,
@@ -369,6 +362,44 @@ export const getProblemById: RequestHandler = async (req, res) => {
                 },
             },
         });
+        return res.status(200).json({
+            success: true,
+            data: problem,
+        });
+    } catch (err: any) {
+        return defaultErrorHandler({ res, message: err?.message });
+    }
+};
+export const getProblemByIdForUpdate: RequestHandler = async (req, res) => {
+    try {
+        const { id, value } = req.params;
+        const problem = await prisma.problem.findFirst({
+            where: {
+                id: parseInt(id),
+                creatorId: req.auth?.id
+            },
+            select: {
+                id: true,
+                title: true,
+                difficulty: true,
+                statement: true,
+                inputFormat: true,
+                outputFormat: true,
+                constraints: true,
+                tags: true,
+                testCases: {
+                    where: {
+                        sample: true,
+                    },
+                    orderBy: {
+                        createdAt: "asc",
+                    },
+                },
+            },
+        });
+        if(!problem) {
+            return defaultErrorHandler({res, status:404, message:"No Problem Found or You Can't Update This Problem!"})
+        }
         return res.status(200).json({
             success: true,
             data: problem,

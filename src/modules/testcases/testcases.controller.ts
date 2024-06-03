@@ -157,6 +157,9 @@ export const getTestCaseById: RequestHandler = async (req, res) => {
                 sample: true,
             },
         });
+        if(!testCase) {
+            return defaultErrorHandler({res, status:404, message:"No Problem Found or You Can't Update This Problem!"})
+        }
         return res.status(200).json({
             success: true,
             data: testCase,
@@ -188,6 +191,9 @@ export const getTestCaseByProblemId: RequestHandler = async (req, res) => {
                 createdAt: "asc"
             }
         });
+        if(testCase.length === 0) {
+            return defaultErrorHandler({res, status:404, message:"No Test Case Found or You Can't Update These Test Cases!"})
+        }
         return res.status(200).json({
             success: true,
             data: testCase,

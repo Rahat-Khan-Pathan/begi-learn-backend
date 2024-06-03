@@ -507,6 +507,9 @@ export const getSubmissionById: RequestHandler = async (req, res) => {
                 testCases: true,
             },
         });
+        if(!allSubmissions) {
+            return defaultErrorHandler({res, status:401, message:"You Are Not Allowed To View This Submission!"})
+        }
         return res.status(200).json({
             success: true,
             data: allSubmissions,
